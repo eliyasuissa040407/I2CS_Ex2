@@ -8,6 +8,7 @@ import java.io.Serializable;
  */
 public class Map implements Map2D, Serializable{
 
+    private int[][] _map;
     // edit this class below
 	/**
 	 * Constructs a w*h 2D raster map with an init value v.
@@ -29,6 +30,8 @@ public class Map implements Map2D, Serializable{
 	public Map(int[][] data) {
 		init(data);
 	}
+
+
 	@Override
 	public void init(int w, int h, int v) {
         int[][] init = new int[h][w];
@@ -39,8 +42,31 @@ public class Map implements Map2D, Serializable{
         }
 
 	}
-	@Override
-	public void init(int[][] arr) {
+    @Override
+    public void init(int[][] arr) {
+        if (arr == null || arr.length == 0) {
+            throw new RuntimeException("Array cannot be null or empty");
+        }
+        if (arr[0] == null || arr[0].length == 0) {
+            throw new RuntimeException("Array dimensions cannot be zero");
+        }
+
+        int w = arr.length;
+        int h = arr[0].length;
+
+        for (int i = 0; i < w; i++) {
+            if (arr[i] == null || arr[i].length != h) {
+                throw new RuntimeException("Ragged array detected: all rows must have the same length");
+            }
+        }
+
+        this._map = new int[w][h];
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                this._map[x][y] = arr[x][y];
+            }
+        }
+    }
 
 
 	}
