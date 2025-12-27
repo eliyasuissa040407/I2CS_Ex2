@@ -5,22 +5,20 @@ public class Index2D implements Pixel2D {
     public Index2D(Pixel2D other) {
         ;
     }
+    private int _x, _y;
     @Override
     public int getX() {
-
-        return 0;
+        return _x;
     }
 
     @Override
     public int getY() {
-
-        return 0;
+        return _y;
     }
 
     @Override
     public double distance2D(Pixel2D p2) {
-
-        return 0;
+       return 0;
     }
 
     @Override
