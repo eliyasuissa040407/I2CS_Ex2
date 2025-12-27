@@ -30,9 +30,7 @@ public class Index2D implements Pixel2D {
 
     @Override
     public String toString() {
-        String ans = null;
-
-        return ans;
+        return _x + "," + _y;
     }
 
     @Override
