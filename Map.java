@@ -158,16 +158,46 @@ public class Map implements Map2D, Serializable{
 
     @Override
     public void rescale(double sx, double sy) {
+        int newW = (int) (this.getWidth() * sx);
+        int newH = (int) (this.getHeight() * sy);
 
+        if (newW <= 0 || newH <= 0) {
+            throw new RuntimeException("Dimensions must be positive");
+        }
+
+        int[][] newMAP = new int[newW][newH];
+
+        for (int x = 0; x < newW; x++) {
+            for (int y = 0; y < newH; y++) {
+                int oldX = (int) (x / sx);
+                int oldY = (int) (y / sy);
+
+                if (oldX >= getWidth()) { oldX = getWidth() - 1; }
+                if (oldY >= getHeight()) { oldY = getHeight() - 1; }
+
+                newMAP[x][y] = this._map[oldX][oldY];
+            }
+        }
+        this._map = newMAP;
     }
 
     @Override
     public void drawCircle(Pixel2D center, double rad, int color) {
+        for(int x = 0; x < this.getWidth(); x++){
+            for(int y = 0; y < this.getHeight(); y++){
+                Pixel2D pNew = new Index2D(x,y);
+                if(center.distance2D(pNew) <= rad ){
+                    this._map[x][y] = color;
+                }
+            }
+        }
+
 
     }
 
     @Override
     public void drawLine(Pixel2D p1, Pixel2D p2, int color) {
+
 
     }
 
