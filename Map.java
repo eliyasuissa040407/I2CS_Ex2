@@ -69,49 +69,55 @@ public class Map implements Map2D, Serializable{
     }
 
 
-	}
-	@Override
-	public int[][] getMap() {
-		int[][] ans = null;
-
-		return ans;
-	}
-	@Override
-	public int getWidth() {
-        int ans = -1;
-
+    @Override
+    public int[][] getMap() {
+        int w = getWidth();
+        int h = getHeight();
+        int[][] ans = new int[w][h];
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                ans[x][y] = this._map[x][y];
+            }
+        }
         return ans;
     }
-	@Override
-	public int getHeight() {
-        int ans = -1;
 
-        return ans;
+    @Override
+    public int getWidth() {
+        if (this._map == null) return 0;
+        return this._map.length;
     }
-	@Override
-	public int getPixel(int x, int y) {
-        int ans = -1;
 
-        return ans;
+    @Override
+    public int getHeight() {
+        if (this._map == null || this._map.length == 0) return 0;
+        return this._map[0].length;
     }
-	@Override
-	public int getPixel(Pixel2D p) {
-        int ans = -1;
 
-        return ans;
-	}
-	@Override
-	public void setPixel(int x, int y, int v) {
-
+    @Override
+    public int getPixel(int x, int y) {
+        return this._map[x][y];
     }
-	@Override
-	public void setPixel(Pixel2D p, int v) {
 
-	}
+    @Override
+    public int getPixel(Pixel2D p) {
+        return this.getPixel(p.getX(), p.getY());
+    }
+
+    @Override
+    public void setPixel(int x, int y, int v) {
+        this._map[x][y] = v;
+    }
+
+    @Override
+    public void setPixel(Pixel2D p, int v) {
+        this.setPixel(p.getX(), p.getY(), v);
+    }
 
     @Override
     public boolean isInside(Pixel2D p) {
         boolean ans = true;
+
 
         return ans;
     }
