@@ -9,6 +9,8 @@ import java.io.Serializable;
 public class Map implements Map2D, Serializable{
 
     private int[][] _map;
+    private int width = 0;
+    private int height = 0;
     // edit this class below
 	/**
 	 * Constructs a w*h 2D raster map with an init value v.
@@ -117,25 +119,40 @@ public class Map implements Map2D, Serializable{
     @Override
     public boolean isInside(Pixel2D p) {
         boolean ans = true;
-
+        if(p.getX() > getHeight()){
+            if(p.getY() > getWidth()){
+                ans = false;
+            }
+        }
 
         return ans;
     }
 
     @Override
     public boolean sameDimensions(Map2D p) {
-        boolean ans = false;
-
-        return ans;
+        if (p == null) {
+            return false;
+        }
+        return this.getWidth() == p.getWidth() && this.getHeight() == p.getHeight();
     }
 
     @Override
     public void addMap2D(Map2D p) {
+        for(int x = 0; x < p.getWidth(); x++){
+            for(int y = 0; y < p.getHeight(); y++){
+                _map[x][y] = _map[x][y] + p.getPixel(x, y);
+            }
+        }
 
     }
 
     @Override
     public void mul(double scalar) {
+        for(int x = 0; x < this.getWidth(); x++){
+            for(int y = 0; y < this.getHeight(); y++){
+                this._map[x][y] *= scalar;
+            }
+        }
 
     }
 
