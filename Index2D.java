@@ -18,7 +18,14 @@ public class Index2D implements Pixel2D {
 
     @Override
     public double distance2D(Pixel2D p2) {
-       return 0;
+        if (p2 == null) {
+            throw new RuntimeException("Error: p2 is null");
+        }
+
+        double dx = this.getX() - p2.getX();
+        double dy = this.getY() - p2.getY();
+
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     @Override
