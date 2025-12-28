@@ -37,16 +37,15 @@ public class Map implements Map2D, Serializable{
 	}
 
 
-	@Override
-	public void init(int w, int h, int v) {
-        int[][] init = new int[h][w];
-        for(int i = 0; i < h; i++){
-            for(int j = 0; j < w; j++){
-                init[i][j] = v;
+    @Override
+    public void init(int w, int h, int v) {
+        this._map = new int[w][h];
+        for(int x = 0; x < w; x++){
+            for(int y = 0; y < h; y++){
+                this._map[x][y] = v;
             }
         }
-
-	}
+    }
     @Override
     public void init(int[][] arr) {
         if (arr == null || arr.length == 0) {
@@ -121,14 +120,10 @@ public class Map implements Map2D, Serializable{
 
     @Override
     public boolean isInside(Pixel2D p) {
-        boolean ans = true;
-        if(p.getX() > getHeight()){
-            if(p.getY() > getWidth()){
-                ans = false;
-            }
-        }
-
-        return ans;
+        if (p == null) return false;
+        int x = p.getX();
+        int y = p.getY();
+        return (x >= 0 && x < getWidth() && y >= 0 && y < getHeight());
     }
 
     @Override
