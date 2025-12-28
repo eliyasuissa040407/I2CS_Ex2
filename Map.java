@@ -1,4 +1,7 @@
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * This class represents a 2D map (int[w][h]) as a "screen" or a raster matrix or maze over integers.
  * This is the main class needed to be implemented.
@@ -197,14 +200,27 @@ public class Map implements Map2D, Serializable{
 
     @Override
     public void drawLine(Pixel2D p1, Pixel2D p2, int color) {
-        if(p1 == null || p2 == null) return;
-        if(p1.getX() == p2.getX() && p1.getY() == p2.getY()){
-            _map[p1.getX()][p1.getY()] = color;
-        }
-        if(p1.getX() < p2.getX()){
+        if (!isInside(p1) || !isInside(p2)) return;
 
-        }
+        int x1 = p1.getX(), y1 = p1.getY();
+        int x2 = p2.getX(), y2 = p2.getY();
+        int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1);
 
+        if (dx >= dy) {
+            if (x1 > x2) { drawLine(p2, p1, color); return; }
+            for (int x = x1; x <= x2; x++) {
+                double t = (x2 == x1) ? 0 : (double)(x - x1) / (x2 - x1);
+                int y = (int) Math.round(y1 + t * (y2 - y1));
+                setPixel(x, y, color);
+            }
+        } else {
+            if (y1 > y2) { drawLine(p2, p1, color); return; }
+            for (int y = y1; y <= y2; y++) {
+                double t = (y2 == y1) ? 0 : (double)(y - y1) / (y2 - y1);
+                int x = (int) Math.round(x1 + t * (x2 - x1));
+                setPixel(x, y, color);
+            }
+        }
     }
 
     @Override
@@ -243,31 +259,118 @@ public class Map implements Map2D, Serializable{
         return true;
     }
 	@Override
-	/** 
+	/**
 	 * Fills this map with the new color (new_v) starting from p.
 	 * https://en.wikipedia.org/wiki/Flood_fill
 	 */
-	public int fill(Pixel2D xy, int new_v,  boolean cyclic) {
-		int ans = -1;
+    public int fill(Pixel2D p, int new_v, boolean cyclic) {
+        int oldColor = getPixel(p);
+        if (oldColor == new_v) return 0;
 
-		return ans;
-	}
+        int count = 0;
+        Queue<Pixel2D> targets = new LinkedList<>();
 
-	@Override
+        setPixel(p, new_v);
+        targets.add(p);
+        count++;
+
+        int[] dx = {1, -1, 0, 0};
+        int[] dy = {0, 0, 1, -1};
+
+        while (!targets.isEmpty()) {
+            Pixel2D current = targets.poll();
+
+            for (int i = 0; i < 4; i++) {
+                int nextX = current.getX() + dx[i];
+                int nextY = current.getY() + dy[i];
+
+                if (cyclic) {
+                    nextX = (nextX + getWidth()) % getWidth();
+                    nextY = (nextY + getHeight()) % getHeight();
+                }
+
+                if (nextX >= 0 && nextX < getWidth() && nextY >= 0 && nextY < getHeight()) {
+                    if (getPixel(nextX, nextY) == oldColor) {
+                        setPixel(nextX, nextY, new_v);
+                        targets.add(new Index2D(nextX, nextY));
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+
 	/**
 	 * BFS like shortest the computation based on iterative raster implementation of BFS, see:
 	 * https://en.wikipedia.org/wiki/Breadth-first_search
 	 */
-	public Pixel2D[] shortestPath(Pixel2D p1, Pixel2D p2, int obsColor, boolean cyclic) {
-		Pixel2D[] ans = null;  // the result.
+    @Override
+    public Pixel2D[] shortestPath(Pixel2D p1, Pixel2D p2, int obsColor, boolean cyclic) {
+        Map2D distMap = allDistance(p1, obsColor, cyclic);
 
-		return ans;
-	}
+        int totalDist = distMap.getPixel(p2);
+        if (totalDist == -1) return null;
+
+        Pixel2D[] path = new Pixel2D[totalDist + 1];
+        Pixel2D current = p2;
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        for (int d = totalDist; d >= 0; d--) {
+            path[d] = current;
+            if (d == 0) break;
+
+            for (int[] dir : directions) {
+                int nx = current.getX() + dir[0];
+                int ny = current.getY() + dir[1];
+
+                if (cyclic) {
+                    nx = (nx + getWidth()) % getWidth();
+                    ny = (ny + getHeight()) % getHeight();
+                }
+
+                if (isInside(new Index2D(nx, ny)) && distMap.getPixel(nx, ny) == d - 1) {
+                    current = new Index2D(nx, ny);
+                    break;
+                }
+            }
+        }
+        return path;
+    }
     @Override
     public Map2D allDistance(Pixel2D start, int obsColor, boolean cyclic) {
-        Map2D ans = null;  // the result.
+        Map2D distMap = new Map(this.getWidth(), this.getHeight(), -1);
+        if (start == null || !isInside(start) || getPixel(start) == obsColor) return distMap;
 
-        return ans;
+        Queue<Pixel2D> queue = new LinkedList<>();
+        distMap.setPixel(start, 0);
+        queue.add(start);
+
+        int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        while (!queue.isEmpty()) {
+            Pixel2D current = queue.poll();
+            int currentDist = distMap.getPixel(current);
+
+            for (int[] dir : directions) {
+                int nx = current.getX() + dir[0];
+                int ny = current.getY() + dir[1];
+
+                if (cyclic) {
+                    nx = (nx + getWidth()) % getWidth();
+                    ny = (ny + getHeight()) % getHeight();
+                }
+
+                if (isInside(new Index2D(nx, ny))) {
+                    if (getPixel(nx, ny) != obsColor && distMap.getPixel(nx, ny) == -1) {
+                        distMap.setPixel(nx, ny, currentDist + 1);
+                        queue.add(new Index2D(nx, ny));
+                    }
+                }
+            }
+        }
+        return distMap;
     }
 	////////////////////// Private Methods ///////////////////////
 
